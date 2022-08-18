@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Device adding/removal</title>
+</head>
+
+<body>
+<div align="left">
+    <h1>Add or remove a device to/from the system</h1>
+    <form action="#" th:action="@{/}" method="post" th:object="${device}">
+
+        <label>Device type:</label>
+        <select th:field="*{deviceType}">
+            <option th:each="p : ${typesOfDevices}" th:value="${p}" th:text="${p}"/>
+        </select>
+
+        <br>
+
+        <label>Process Value Modbus Address:</label>
+        <select th:field="*{modbusPvAddress}">
+            <option th:each="p : ${pvAddresses}" th:value="${p}" th:text="${p}"/>
+        </select>
+
+        <br>
+
+        <label>Low Limit Modbus Address:</label>
+        <select th:field="*{modbusLlAddress}">
+            <option th:each="p : ${llAddresses}" th:value="${p}" th:text="${p}"/>
+        </select>
+
+        <br>
+
+        <label>High Limit Modbus Address:</label>
+        <select th:field="*{modbusHhAddress}">
+            <option th:each="p : ${hhAddresses}" th:value="${p}" th:text="${p}"/>
+        </select>
+
+        <br>
+
+        <p>
+            <button type="submit" name="action" value="add">Add</button>
+            <button type="submit" name="action" value="delete">Delete</button>
+        </p>
+    </form>
+    <button onclick="location.href='/devices'">Device list</button>
+</div>
+</body>
+</html>

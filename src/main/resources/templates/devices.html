@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Device adding/removal</title>
+</head>
+
+<body>
+<div align="left">
+  <h1>Device table</h1>
+
+  <table>
+    <tr>
+      <th>Device</th>
+      <th>PV address</th>
+      <th>PV value</th>
+      <th>LL address</th>
+      <th>LL value</th>
+      <th>HH address</th>
+      <th>HH value</th>
+
+    </tr>
+    <tr th:each="device : ${deviceList}">
+      <td th:text="${device.getDeviceType()}"></td>
+      <td th:text="${device.getModbusPvAddress()}"></td>
+      <td th:text="${device.getPvValue()}"></td>
+      <td th:text="${device.getModbusLlAddress()}"></td>
+      <td th:text="${device.getLlValue()}"></td>
+      <td th:text="${device.getModbusHhAddress()}"></td>
+      <td th:text="${device.getHhValue()}"></td>
+    </tr>
+  </table>
+
+  <br>
+
+  <button onclick="location.href='/'">Add/Delete device</button>
+
+</div>
+</body>
+</html>

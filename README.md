@@ -6,7 +6,7 @@
 |----------------------------|:-------:|:--------:|
 | ws://server.iotvega.com/ws |  demo   |   demo   |
 
-###### To test Modbus Server you can use [OpenModBusTool](https://github.com/heX16/OpenModbusTool)
+###### To test Modbus Server you can use [OpenModbusTool](https://github.com/heX16/OpenModbusTool)
 
 ## Building the application
 #### Type a command `mvn clean install`
@@ -23,5 +23,6 @@
       * Download and install [Java JRE 11](https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html)
 
 * Then open command line in the target folder with LoraVegaToModbusServer-0.1.1.war file
-* Type `java -jar LoraVegaToModbusServer-0.1.1 VEGA_LORA_ADDRESS LOGIN PASSWORD` (for example: `java -jar LoraVegaToModbusServer-0.1.1.war ws://server.iotvega.com/ws demo demo`)
+* For Windows type `java -jar LoraVegaToModbusServer-0.1.1 VEGA_LORA_ADDRESS LOGIN PASSWORD` (for example: `java -jar LoraVegaToModbusServer-0.1.1.war ws://server.iotvega.com/ws demo demo`)
+* For Linux type `sudo java -jar LoraVegaToModbusServer-0.1.1 VEGA_LORA_ADDRESS LOGIN PASSWORD` (for example: `sudo java -jar LoraVegaToModbusServer-0.1.1.war ws://server.iotvega.com/ws demo demo`)
 * Open a browser, type `127.0.0.1:8080` and do the magic

@@ -64,7 +64,7 @@ public class VegaLoraToModbusApplication {
 					for (Device device : devices.values()) {
 						System.out.println(device);
 						try {
-							int f = -40_000 - 1;
+							int f = -40_000;
 							int pvAddress = device.getModbusPvAddress() + f;
 							float pv = Float.parseFloat(device.getPvValue());
 							int[] pvHoldingRegister = ModbusClient.ConvertFloatToTwoRegisters(pv);
@@ -121,7 +121,7 @@ public class VegaLoraToModbusApplication {
 			} catch (URISyntaxException e) {
 				System.out.println(e);
 			} catch (InterruptedException e) {
-				System.out.println(e);;
+				System.out.println(e);
 			}
 		}).start();
 	}

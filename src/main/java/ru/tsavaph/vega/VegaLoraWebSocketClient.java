@@ -20,7 +20,7 @@ public class VegaLoraWebSocketClient extends WebSocketClient {
     /**
      * Creates a Web Socket Client
      * @param uri WS URI
-     * @throws URISyntaxException
+     * @throws URISyntaxException URISyntaxException
      */
     public VegaLoraWebSocketClient(String uri) throws URISyntaxException {
         super(new URI(uri));
@@ -75,7 +75,7 @@ public class VegaLoraWebSocketClient extends WebSocketClient {
     }
 
     /**
-     * Action on when connection closses
+     * Action on when connection closes
      */
     @Override
     public void onClose(int code, String reason, boolean remote) {

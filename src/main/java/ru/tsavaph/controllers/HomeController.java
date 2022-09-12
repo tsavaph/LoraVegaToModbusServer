@@ -84,7 +84,7 @@ public class HomeController {
      * Fills an {@link ArrayList} with addresses with a step 2 numbers
      *
      * @param first first address
-     * @param first last address
+     * @param last last address
      * @return list with addresses
      */
     private List<String> getListWithAddresses(int first, int last) {

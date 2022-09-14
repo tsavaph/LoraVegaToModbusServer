@@ -1,5 +1,14 @@
 package ru.tsavaph.devices;
 
+import com.opencsv.CSVReaderHeaderAware;
+import com.opencsv.exceptions.CsvException;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 
 /**
@@ -7,20 +16,23 @@ import java.util.*;
  * To add one more device you have to update this class.
  */
 public abstract class DeviceType {
+    public static volatile HashMap<String, Device> devices = new HashMap<>();
+
+    /**
+     * List with device data values from a csv file
+     */
+    private static final List<String[]> DEVICE_PARSING_CSV_FILE_STRINGS = initDeviceParsingCsvFileStrings();
 
     /**
      * Map with device EUI and its type (name).
      * Update this map to add a new device.
      */
-    public static Map<String, String> DEVICE_MAP = Map.of(
-            "3739343554376004", "TD-11 temperature of water 2d flour",
-            "343438355B37650E", "TP-11 current loop 2d flour"
-    );
+    public static final Map<String, String> DEVICE_MAP = initDeviceMap();
 
     /**
      * List with device types
      */
-    public static List<String> DEVICE_TYPES = new ArrayList<>(DEVICE_MAP.values());
+    public static final List<String> DEVICE_TYPES = new ArrayList<>(DEVICE_MAP.values());
 
     /**
      * Converts HEX string to data from device. Update case statement in the method while adding a new device.
@@ -37,111 +49,71 @@ public abstract class DeviceType {
                 "NO DATA"
         };
 
-        int[] data;
-        int packageType;
-        int battery;
-        int limit;
-        int time;
         float pv;
         float ll;
         float hh;
-        int packageReason;
-        int inputStatus;
 
-        switch (deviceEui) {
+        for(String[] arrayWithValuesFromLinesOfCsvFile : DEVICE_PARSING_CSV_FILE_STRINGS) {
 
-            // TD-11
-            // example of data respond 015b00f0eef962fe000a28000d
-            case "3739343554376004":
-                data = hexStringToArray(dataString);
+            if (arrayWithValuesFromLinesOfCsvFile[0].equals(deviceEui)) {
+                Value pvValue = new Value(2, 3, 4, dataString, arrayWithValuesFromLinesOfCsvFile);
+                pv = pvValue.getValue();
 
-                packageType = data[0];
-                battery = data[1];
-                limit = data[2];
+                Value llValue = new Value(5, 6, 7, dataString, arrayWithValuesFromLinesOfCsvFile);
+                ll = llValue.getValue();
 
-                time = Integer.parseInt(
-                        Integer.toHexString(data[6]) +
-                                Integer.toHexString(data[5]) +
-                                Integer.toHexString(data[4]) +
-                                Integer.toHexString(data[3]),
-                        16);
-
-                pv = Integer.parseInt(
-                        Integer.toHexString(data[8]) +
-                                Integer.toHexString(data[7]),
-                        16) / 10;
-
-                ll = data[9];
-                hh = data[10];
-                packageReason = data[11];
-                inputStatus = data[12];
+                Value hhValue = new Value(8, 9, 10, dataString, arrayWithValuesFromLinesOfCsvFile);
+                hh = hhValue.getValue();
 
                 parsedData = new String[]{
                         String.valueOf(pv),
                         String.valueOf(ll),
                         String.valueOf(hh)
                 };
-                break;
-
-            // TP-11
-            // example of data respond 016200152af9621b4c0414050000fb04
-            case "343438355B37650E":
-                data = hexStringToArray(dataString);
-                packageType = data[0];
-                battery = data[1];
-                limit = data[2];
-
-                time = Integer.parseInt(
-                        Integer.toHexString(data[6]) +
-                                Integer.toHexString(data[5]) +
-                                Integer.toHexString(data[4]) +
-                                Integer.toHexString(data[3]),
-                        16);
-                int deviceTemperature = data[7];
-
-                ll = Integer.parseInt(
-                        Integer.toHexString(data[9]) +
-                                Integer.toHexString(data[8]),
-                        16) / 100;
-
-                hh = Integer.parseInt(
-                        Integer.toHexString(data[11]) +
-                                Integer.toHexString(data[10]),
-                        16) / 100;
-
-                packageReason = data[12];
-                inputStatus = data[13];
-
-                pv = Integer.parseInt(
-                        Integer.toHexString(data[15]) +
-                                Integer.toHexString(data[14]),
-                        16) / 100;
-
-                parsedData = new String[]{
-                        String.valueOf(pv),
-                        String.valueOf(ll),
-                        String.valueOf(hh)
-                };
-                break;
+            }
         }
-
         return parsedData;
     }
 
-    /**
-     * Converts HEX string to an int array
-     *
-     * @param dataString Data as a HEX string
-     * @return an array with byte presented as integers
-     */
-    private static int[] hexStringToArray(String dataString) {
-        int[] data = new int[dataString.length() / 2];
 
-        for (int i = 0; i < data.length; i++) {
-            int index = i * 2;
-            data[i] = Integer.parseInt(dataString.substring(index, index + 2), 16);
+    /**
+     * Method extracts all data from a file devices_data.csv from recourses/files/devices_data.csv
+     * @return parsed data from a file
+     */
+    private static List<String[]> initDeviceParsingCsvFileStrings() {
+        // read a csv file with parsing data
+        Resource resource = new ClassPathResource("files/devices_data.csv");
+
+        // get inputStream object
+        InputStream inputStream;
+        try {
+            inputStream = resource.getInputStream();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
-        return data;
+        List<String[]> deviceParsingCsvFileStrings;
+        // get a csv values array
+        try {
+            deviceParsingCsvFileStrings = new CSVReaderHeaderAware(new InputStreamReader(inputStream)).readAll();
+        } catch (IOException | CsvException e) {
+            throw new RuntimeException(e);
+        }
+
+        return deviceParsingCsvFileStrings;
+    }
+
+    /**
+     * Method to init devices from deviceParsingCsvFileStrings
+     * @return map with devices EUI and its type
+     */
+    private static @NotNull Map<String, String> initDeviceMap() {
+        Map<String, String> deviceMap = new HashMap<>();
+
+        for (String[] cvsLine: DEVICE_PARSING_CSV_FILE_STRINGS) {
+            deviceMap.put(cvsLine[0], cvsLine[1]);
+        }
+
+        return deviceMap;
     }
 }

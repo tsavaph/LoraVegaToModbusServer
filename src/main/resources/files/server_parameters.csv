@@ -1,0 +1,2 @@
+Web Socket Address,Login,Password, WebSocketPullTime, ModbusPullTime
+ws://server.iotvega.com/ws,demo,demo,10,10

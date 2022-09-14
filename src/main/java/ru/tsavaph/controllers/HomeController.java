@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static ru.tsavaph.devices.DeviceType.DEVICE_MAP;
-import static ru.tsavaph.vega.VegaLoraWebSocketClient.devices;
+import static ru.tsavaph.devices.DeviceType.devices;
 
 /**
  * Home page controller
@@ -84,7 +84,7 @@ public class HomeController {
      * Fills an {@link ArrayList} with addresses with a step 2 numbers
      *
      * @param first first address
-     * @param first last address
+     * @param last last address
      * @return list with addresses
      */
     private List<String> getListWithAddresses(int first, int last) {

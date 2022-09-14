@@ -9,29 +9,38 @@ import ru.tsavaph.devices.DeviceType;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+
+import static ru.tsavaph.devices.DeviceType.devices;
 
 /**
  * Vega Lora Web Socket Client
  */
 public class VegaLoraWebSocketClient extends WebSocketClient {
-    public static volatile HashMap<String, Device> devices = new HashMap<>();
+    private String login;
+    private String password;
+    private int pullTime;
+
 
     /**
-     * Creates a Web Socket Client
+     * Creates a Vega Lora Web Socket Client
      * @param uri WS URI
-     * @throws URISyntaxException
+     * @param login Username
+     * @param password Password
+     * @param pullTime Pull time
+     * @throws URISyntaxException URISyntaxException
      */
-    public VegaLoraWebSocketClient(String uri) throws URISyntaxException {
+    public VegaLoraWebSocketClient(String uri, String login, String password, int pullTime) throws URISyntaxException {
         super(new URI(uri));
+        this.login = login;
+        this.password = password;
+        this.pullTime = pullTime;
     }
 
     /**
      * Connects to Vega Lora Server
-     * @param login username
-     * @param password password
      */
-    public void connect(String login, String password) {
+    public void connect() {
 
         super.connect();
         JSONObject obj = new JSONObject();
@@ -75,7 +84,7 @@ public class VegaLoraWebSocketClient extends WebSocketClient {
     }
 
     /**
-     * Action on when connection closses
+     * Action on when connection closes
      */
     @Override
     public void onClose(int code, String reason, boolean remote) {
@@ -105,5 +114,33 @@ public class VegaLoraWebSocketClient extends WebSocketClient {
             }
             super.send(message);
         }
+    }
+
+    /**
+     * Starts pulling a server and saving devices values
+     */
+    public void pull() {
+        // starts a thread with WebSocket and polling data
+        new Thread(() -> {
+            try {
+                while (true) {
+
+                    if (isClosed())
+                        connect();
+
+                    for (Device device : devices.values()) {
+                        JSONObject obj1 = new JSONObject();
+                        obj1.put("cmd", "get_data_req");
+                        obj1.put("devEui", device.getDeviceEui());
+                        obj1.put("select", new JSONObject().put("limit", 1));
+                        String message = obj1.toString();
+                        send(message);
+                    }
+                    TimeUnit.SECONDS.sleep(pullTime);
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
     }
 }

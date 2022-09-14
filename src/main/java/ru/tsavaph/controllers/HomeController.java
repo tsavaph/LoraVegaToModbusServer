@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static ru.tsavaph.devices.DeviceType.DEVICE_MAP;
-import static ru.tsavaph.vega.VegaLoraWebSocketClient.devices;
+import static ru.tsavaph.devices.DeviceType.devices;
 
 /**
  * Home page controller

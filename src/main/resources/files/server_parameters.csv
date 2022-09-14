@@ -1,2 +1,2 @@
-Web Socket Address,Login,Password
-ws://server.iotvega.com/ws,demo,demo
+Web Socket Address,Login,Password, WebSocketPullTime, ModbusPullTime
+ws://server.iotvega.com/ws,demo,demo,10,10

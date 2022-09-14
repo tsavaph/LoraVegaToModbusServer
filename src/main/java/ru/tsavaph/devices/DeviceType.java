@@ -16,6 +16,7 @@ import java.util.*;
  * To add one more device you have to update this class.
  */
 public abstract class DeviceType {
+    public static volatile HashMap<String, Device> devices = new HashMap<>();
 
     /**
      * List with device data values from a csv file

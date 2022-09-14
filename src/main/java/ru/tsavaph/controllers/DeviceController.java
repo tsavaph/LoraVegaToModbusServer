@@ -7,7 +7,7 @@ import ru.tsavaph.devices.Device;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.tsavaph.vega.VegaLoraWebSocketClient.devices;
+import static ru.tsavaph.devices.DeviceType.devices;
 
 /**
  * Page with devices list controller

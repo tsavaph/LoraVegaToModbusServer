@@ -1,15 +1,20 @@
 package ru.tsavaph;
 
+import com.opencsv.CSVReaderHeaderAware;
+import com.opencsv.exceptions.CsvException;
 import de.re.easymodbus.modbusclient.ModbusClient;
 import de.re.easymodbus.server.ModbusServer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import ru.tsavaph.devices.Device;
 import ru.tsavaph.devices.DeviceType;
 import ru.tsavaph.vega.VegaLoraWebSocketClient;
@@ -33,21 +38,33 @@ public class VegaLoraToModbusApplication {
 	private static final int PULL_TIME = 10;
 
 	public static void main(String[] args) {
-		ConfigurableApplicationContext ctx = SpringApplication.run(VegaLoraToModbusApplication.class, args);
+		SpringApplication.run(VegaLoraToModbusApplication.class, args);
+		Resource resource = new ClassPathResource("files/server_parameters.csv");
 
-		for (String s : args) {
-			System.out.println(s);
+		// get inputStream object
+		InputStream inputStream;
+		try {
+			inputStream = resource.getInputStream();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 
-		if (args.length != 3) {
-			ctx.close();
+		String[] serverParameters;
+		// get a csv values array
+		try {
+			serverParameters = new CSVReaderHeaderAware(new InputStreamReader(inputStream)).readAll().get(0);
+		} catch (IOException | CsvException e) {
+			throw new RuntimeException(e);
+		}
+
+		if (serverParameters.length != 3) {
 			throw new RuntimeException(new Exception(
-					"USE THIS COMMAND 'java -jar LoraVegaToModbusServer-0.1.1.war VEGA_LORA_ADDRESS LOGIN PASSWORD'"
+					"TYPE THESE PARAMETERS 'VEGA_LORA_ADDRESS, LOGIN, PASSWORD' into recourses/files/server_parameters.csv file"
 			));
 		}
 
 		try {
-			URI uri = new URI(args[1]);
+			new URI(serverParameters[0]);
 		} catch (URISyntaxException e) {
 			System.out.println("URI should be like this \"ws://server.iotvega.com/ws\" or this \"ws://192.12.11.10:8000\"");
 			throw new RuntimeException(e);
@@ -94,12 +111,12 @@ public class VegaLoraToModbusApplication {
 		// starts a thread with WebSocket and polling data
 		new Thread(() -> {
 			// http://server.iotvega.com/index.html "ws://server.iotvega.com/ws"
-			String uri = args[0];
+			String uri = serverParameters[0];
 			try {
 				VegaLoraWebSocketClient client = new VegaLoraWebSocketClient(uri);
 
-				String login = args[1];
-				String password = args[2];
+				String login = serverParameters[1];
+				String password = serverParameters[2];
 				// open websocket
 				client.connect(login, password);
 
